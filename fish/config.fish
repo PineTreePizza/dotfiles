@@ -10,7 +10,7 @@ function fish_prompt
     echo -n "󰌢  "(hostname)"@"(pwd)" "
     set_color $arrowcol -b normal
     echo -n " 
-╰──"
+╰── "
 end
 
 set fish_greeting
