@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Initialize SDL Function
+# key: InitSDL
+# --
+bool initSDL() {
+  bool success = true;
+  if(SDL_Init(SDL_INIT_VIDEO < 0)) {
+    std::clog << "ERROR: FAILED TO INITIALIZE SDL_VIDEO, CODE: " << SDL_GetError() << std::endl;
+  } else {
+    ${1:window} = SDL_CreateWindow("${2:windowName}", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ${3:width} , ${4:height}, SDL_WINDOW_SHOWN);
+  }
+  return success;
+}
