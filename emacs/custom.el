@@ -5,7 +5,6 @@
  ;; If there is more than one, they won't work right.
  '(clang-format-fallback-style "google")
  '(clang-format-style "google")
- '(codeium/metadata/api_key "17afff9c-7e78-4755-be12-aa54dffe5fd4")
  '(css-indent-offset 2)
  '(custom-safe-themes
 	 '("1cd4df5762b3041a09609b5fb85933bb3ae71f298c37ba9e14804737e867faf3" default))
