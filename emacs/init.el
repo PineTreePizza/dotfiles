@@ -1,15 +1,58 @@
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+				(url-retrieve-synchronously
+				 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+				 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; (setq mouse-wheel-scroll-amount '(1))
+;; (setq scroll-step 1)
+(setq scroll-conservatively 10000)
+(setq mouse-wheel-progressive-speed nil)
+(pixel-scroll-precision-mode t)
+(setq-default word-wrap -1)
+(toggle-truncate-lines 1)
+(global-set-key (kbd "<wheel-right>") '(lambda ()
+																				 (interactive)
+																				 (scroll-left 1)))
+(global-set-key (kbd "<wheel-left>") '(lambda ()
+																				(interactive)
+																				(scroll-right 1)))
+;; (global-set-key (kbd "<wheel-down>") 'pixel-scroll-up)
+;; (global-set-key (kbd "<wheel-up>") 'pixel-scroll-down)
+
+(setq package-enable-at-startup nil)
+(straight-use-package 'use-package)
+
+(prefer-coding-system 'utf-8)
+(setq font-lock-support-mode 'jit-lock-mode)
+(setq jit-lock-stealth-time 16
+	    jit-lock-defer-contextually t
+	    jit-lock-stealth-nice 0.5)
+(setq-default font-lock-multiline t)
+
 (setq inhibit-startup-message t)
-(global-hl-line-mode 1)
+;;(global-hl-line-mode 1)
 ;;(toggle-debug-on-error)
 
 (scroll-bar-mode  -1)
 (tool-bar-mode -1)
 (tooltip-mode  -1)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode 1)
-(set-fringe-mode 5)
 (electric-pair-mode 1)
-(setq gc-cons-threshold 10000000000)
+(setq gc-cons-threshold 5000000000)
 (setq posframe-mouse-banish nil)
+(setq warning-minimum-level :emergency)
+
+(use-package goto-line-preview
+	:straight t
+	:ensure t)
 
 (setq backup-directory-alist '(("." . "~/.config/emacs/backup"))
       backup-by-copying t    ; Don't delink hardlinks
@@ -19,90 +62,58 @@
       kept-old-versions 20   ; and how many of the old
       )
 
-(setq use-package-always-defer t)
+;;(setq use-package-always-defer t)
 (setq auto-save-default nil)
 (setq indent-tabs-mode nil)
 (setq-default tab-width 2)
 
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font Mono-11")
-(set-face-attribute 'mode-line nil :font "JetBrainsMono Nerd Font Mono-11")
-(set-face-attribute 'variable-pitch nil :font "JetBrainsMono Nerd Font Mono-11")
-(set-face-attribute 'fixed-pitch nil :font "JetBrainsMono Nerd Font Mono-11")
+(set-face-attribute 'default nil :font "Iosevka Nerd Font Propo-14")
+(set-face-attribute 'mode-line nil :font "DroidSansM Nerd Font Propo-12")
+(set-face-attribute 'variable-pitch nil :font "DroidSansM Nerd Font-12")
+(set-face-attribute 'fixed-pitch nil :font "Iosevka Nerd Font Propo-14")
 
-(setq-default cursor-type '(bar . 2))
+(setq-default cursor-type '(bar . 1))
 (menu-bar-mode -1)
 (cua-mode 1)
 
 ;;###-BASIC KEY BINDS-###;;
+
+(use-package vterm
+	:straight t
+	:ensure t)
+
+(setq vterm-shell "/bin/fish")
 
 (defun split-window-vertically-down-and-create-shell-buffer ()
   "Split the current window and create a shell buffer in the new window."
   (interactive)
   (split-window-vertically)
   (other-window 1)
-  (eshell "*shell*")
+  (vterm)
   (shrink-window 15)
-  (centaur-tabs-local-mode nil)
   (windmove-up)
   )
 
-;;(setq mouse-wheel-progressive-speed nil)
-;;(pixel-scroll-precision-mode t)
-;; (setq pixel-scroll-precision-use-momentum t)
-;; (setq pixel-scroll-precision-large-scroll-height 40.0)
 ;; scroll one line at a time (less "jumpy" than defaults)
 
-(setq mouse-wheel-scroll-amount '(4 ((shift) . 1)))
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
+;; (setq mouse-wheel-scroll-amount '(4 ((shift) . 1)))
+;; (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+;; (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+;; (setq scroll-step 1) ;; keyboard scroll one line at a time
+
 (setq redisplay-dont-pause t)
+
 (global-set-key (kbd "C-A") 'mark-whole-buffer)
 ;;(global-set-key (kbd "M-<right>") 'next-buffer)
 ;;(global-set-key (kbd "M-<left>") 'previous-buffer)
-(global-set-key (kbd "M-g") 'goto-line)
+(global-set-key (kbd "M-g") 'goto-line-preview)
 (global-set-key (kbd "C-;") 'split-window-vertically-down-and-create-shell-buffer)
-
-(defun split-window-vertically-up-and-create-empty-buffer ()
-  "Split the current window and create an empty buffer in the new window."
-  (interactive)
-  (split-window-vertically)
-  (switch-to-buffer "*scratch"))
-
-(defun split-window-vertically-down-and-create-empty-buffer ()
-  "Split the current window and create an empty buffer in the new window."
-  (interactive)
-  (split-window-vertically)
-  (other-window 1)
-  (switch-to-buffer "*scratch")
-  )
-
-(defun split-window-horizontally-right-and-create-empty-buffer ()
-  "Split the current window and create an empty buffer in the new window."
-  (interactive)
-  (split-window-horizontally)
-  (other-window 1)
-  (switch-to-buffer "*scratch"))
-
-(defun split-window-horizontally-left-and-create-empty-buffer ()
-  "Split the current window and create an empty buffer in the new window."
-  (interactive)
-  (split-window-horizontally)
-  (switch-to-buffer "*scratch"))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (defadvice keyboard-escape-quit
     (around keyboard-escape-quit-dont-close-windows activate)
   (let ((buffer-quit-function (lambda () ()))) ad-do-it))
-
-(global-set-key (kbd "M-<down>") (lambda()(scroll-up scroll-step)))    ; Bind Ctrl-n to scroll up
-(global-set-key (kbd "M-<up>") (lambda()(scroll-down scroll-step))) ; Bind Ctrl-p to scroll down
-
-(global-set-key (kbd "C-X <up>") 'split-window-vertically-up-and-create-empty-buffer)
-(global-set-key (kbd "C-X <down>") 'split-window-vertically-down-and-create-empty-buffer)
-(global-set-key (kbd "C-X <right>") 'split-window-horizontally-right-and-create-empty-buffer)
-(global-set-key (kbd "C-X <left>") 'split-window-horizontally-left-and-create-empty-buffer)
 
 (global-set-key (kbd "C-X C-<up>") 'enlarge-window)
 (global-set-key (kbd "C-X C-<down>") 'shrink-window)
@@ -120,138 +131,274 @@
 (global-set-key (kbd "C-X S-<down>") 'windmove-down)
 (global-set-key (kbd "C-c c") 'comment-or-uncomment-region)
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-				(url-retrieve-synchronously
-				 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-				 'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(setq package-enable-at-startup nil)
-(straight-use-package 'use-package)
-
 (use-package vscode-icon
   :straight t
+	:demand t
   :ensure t)
 
 (use-package all-the-icons
   :straight t
+	:demand t
   :ensure t
   )
 
-(use-package timu-spacegrey-theme
+(use-package nerd-icons
   :straight t
-  :ensure t)
-(load-theme 'timu-spacegrey t)
+	:demand t
+  :ensure t
+  )
+
+(use-package theme-magic
+	:straight t
+	:ensure t)
+
+;; (use-package base16-theme
+;; 	:straight t
+;; 	:ensure t)
+
+;; (use-package nano-theme
+;; 	:straight t
+;; 	:ensure t)
+
+;; (load-theme 'base16-ocean t)
+
+;; (load-theme 'nano-dark t)
+;; (enable-theme 'nano-dark)
+
+;; (use-package timu-spacegrey-theme
+;;   :straight t
+;;   :ensure t)
+;; (load-theme 'timu-spacegrey t)
+
+(use-package modus-themes
+	:straight t
+	:ensure t
+	:config
+	(setq modus-themes-italic-constructs t
+				modus-themes-bold-constructs t
+				modus-themes-mixed-fonts t
+				modus-themes-variable-pitch-ui t
+				modus-themes-custom-auto-reload t
+				modus-themes-prompts 'thin
+				modus-themes-completions
+				'((matches . (bold underline italic))
+					(selection . (regular italic)))
+				)
+	(setq modus-themes-common-palette-overrides
+				'((comment "#648b7e")
+					(bg-main "#3e4249")
+					(bg-dim "#313640")
+					(fg-main "#e9f0f9")
+					(fg-alt "#bc9fb1")
+					(bg-hover "#606c7f")
+					(string "#bc9fb1")
+					(bg-mode-line-active "#606c7f")
+					(fg-mode-line-active fg-main)
+					(border-mode-line-active "#FFFFFF")
+					(cursor "#bc9fb1")
+					(builtin "#bc9fb1")
+					(constant "#8bc9bb")
+					(docstring "#63a38e")
+					(fnname "#c98b8b")
+					(keyword "#9f8bc9")
+					(preprocessor "#8b8bc9")
+					(type "#606c7f")
+					(variable "#c9b08b")
+					)
+				)
+	)
+
+(load-theme 'modus-vivendi-tinted t)
+(enable-theme 'modus-vivendi-tinted)
+
+;; (use-package nano-theme
+;; 	:straight t
+;; 	:ensure t)
+
+;; (load-theme 'nano-dark t)
+
+(unless (daemonp)
+  (theme-magic-from-emacs))
+
+(use-package dashboard
+	:straight t
+	:demand t
+  :ensure t
+  :config
+	(setq dashboard-banner-logo-title "Codin' time")
+	(setq dashboard-startup-banner "/home/pine/.config/emacs/banner.png")
+	(setq dashboard-center-content t)
+	(setq dashboard-items '((recents  . 5)
+													(bookmarks . 5)))
+
+	(setq dashboard-item-names '(("Recent Files:" . "Recently opened files:")
+															 ("Bookmarks:" . "Your bookmarks:")))
+
+	(setq dashboard-icon-type 'all-the-icons)
+	(setq dashboard-set-navigator t)
+	(setq dashboard-set-init-info t)
+	(setq dashboard-set-footer nil)
+	(dashboard-setup-startup-hook))
+
+
 
 ;;; Git client
 (use-package magit
-  :straight t
-  :ensure t)
+	:straight t
+	:ensure t)
 
 (use-package treesit-auto
 	:straight t
-  :ensure t
+	:ensure t
 	:demand t
-  :config
-  (global-treesit-auto-mode))
+	:config
+	(global-treesit-auto-mode))
 
 ;;; Markdown support
 
 (use-package markdown-mode
-  :ensure t)
+	:ensure t)
 
-(use-package centaur-tabs
-  :straight t
-  :ensure t
+;; (use-package centaur-tabs
+;; 	:after all-the-icons
+;; 	:straight t
+;; 	:ensure t
+;; 	:demand t
+;; 	:config
+;; 	(setq centaur-tabs-style "wave"
+;; 				centaur-tabs-set-modified-marker t
+;; 				centaur-tabs-height 32
+;; 				centaur-tabs-set-icons t
+;; 				centaur-tabs-show-new-tab-button nil
+;; 				centaur-tabs-show-navigation-buttons nil
+;; 				centaur-tabs-set-bar nil
+;; 				centaur-tabs-gray-out-icons 'buffer
+;; 				centaur-tabs-show-count nil)
+;; 	(centaur-tabs-mode t)
+
+;; 	:bind
+;; 	("M-<left>" . centaur-tabs-backward)
+;; 	("M-<right>" . centaur-tabs-forward)
+;; 	("M-<up>" . centaur-tabs-forward-group)
+;; 	("M-<down>" . centaur-tabs-backward-group)
+;; 	)
+
+(use-package awesome-tab
+	:after all-the-icons
+	:straight t
+	:ensure t
 	:demand t
-  :config
-  (setq centaur-tabs-style "box"
-				centaur-tabs-modified-marker "*"
-				centaur-tabs-height 32
-				centaur-tabs-set-icons t
-				centaur-tabs-show-new-tab-button t
-				centaur-tabs-show-navigation-buttons nil
-				centaur-tabs-set-bar 'right
-				centaur-tabs-show-count nil
-				centaur-tabs-left-edge-margin nil)
-  :bind
-  ("M-<left>" . centaur-tabs-backward)
-  ("M-<right>" . centaur-tabs-forward)
-  ("M-<up>" . centaur-tabs-forward-group)
-  ("M-<down>" . centaur-tabs-backward-group)
-  )
+	:config
+	(setq awesome-tab-height 160)
+	:bind
+	("M-<left>" . awesome-tab-backward)
+	("M-<right>" . awesome-tab-forward)
+	("M-<up>" . awesome-tab-forward-group)
+	("M-<down>" . awesome-tab-backward-group)
+	)
 
-(centaur-tabs-mode)
+(defun awesome-tab-hide-tab (x)
+  (let ((name (format "%s" x)))
+    (or
+     (string-prefix-p "*Messages" name)
+     (string-prefix-p "*Async-native-compile-log" name)
+     (string-prefix-p "*Compile-Log*" name)
+     (string-prefix-p "*straight-process" name)
+		 (derived-mode-p 'treemacs-mode)
+		 (string-prefix-p "*scratch" name)
+		 (string-prefix-p " *eldoc" name)
+		 (string-prefix-p " *eldoc-box*" name)
+		 (string-prefix-p "*vterm*" name)
+		 (string-prefix-p " *eldoc-box" name)
+     (string-prefix-p "*dashboard" name)
+     )))
+
+(awesome-tab-mode t)
 
 (defun org-setup ()
-  (org-indent-mode)
-  (variable-pitch-mode t)
-  (buffer-face-mode -1)
-  (auto-fill-mode 0)
-  (visual-line-mode))
+	(org-indent-mode)
+	(variable-pitch-mode t)
+	(buffer-face-mode -1)
+	(auto-fill-mode 0)
+	(visual-line-mode))
 
 (straight-use-package '(org :type built-in))
 (use-package org
-  :ensure t
-  :defer t
-  :hook (org-mode . org-setup)
-  :config
-  (setq org-todo-keywords '((sequence "TODO" "WORKING" "DONE")))
-  (setq org-todo-keyword-faces '(("TODO" . org-todo)
+	:ensure t
+	:defer t
+	:hook (org-mode . org-setup)
+	:config
+	(setq org-todo-keywords '((sequence "TODO" "WORKING" "DONE")))
+	(setq org-todo-keyword-faces '(("TODO" . org-todo)
  																 ("WORKING" . "#b38d46")
  																 ("DONE" . org-done)))
-  (setq org-support-shift-select t)
-  (setq org-CUA-compatible t)
-  (global-set-key (kbd "C-M-<return>") 'org-insert-todo-heading)
-  (global-set-key (kbd "C-M-<right>") 'org-indent-item-tree)
-  (global-set-key (kbd "C-M-<left>") 'org-outdent-item-tree)
-  (setq org-ellipsis ""
+	(setq org-support-shift-select t)
+	(setq org-CUA-compatible t)
+	(global-set-key (kbd "C-M-<return>") 'org-insert-todo-heading)
+	(global-set-key (kbd "C-M-<right>") 'org-indent-item-tree)
+	(global-set-key (kbd "C-M-<left>") 'org-outdent-item-tree)
+	(setq org-ellipsis ""
  				org-hide-emphasis-markers t)
-  (set-face-underline 'org-ellipsis nil))
+	(set-face-underline 'org-ellipsis nil))
 
 (add-hook 'org-mode-hook 'flyspell-mode)
 
-(use-package org-bullets
-  :after org
-  :straight t
-  :ensure t
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("󰪥 " "" "" "" "◦" "•" "◦" "•")))
+(use-package org-modern
+	:straight t
+	:ensure t)
+
+(with-eval-after-load 'org (global-org-modern-mode))
 
 (use-package org-roam
-  :after org
-  :straight t
-  :ensure t)
+	:after org
+	:straight t
+	:ensure t)
+
+(use-package org-roam-ui
+	:after org
+	:straight t
+	:ensure t)
+
+(use-package cmake-ide
+	:straight t
+	:ensure t
+	)
+
+(use-package rtags
+	:straight t
+	:ensure t
+	)
+(require 'rtags)
+(cmake-ide-setup)
 
 (use-package highlight-indent-guides
-  :straight t
-  :ensure t
-  :hook(prog-mode . highlight-indent-guides-mode)
-  :config
-  (setq highlight-indent-guides-method 'character)
-  )
+	:straight t
+	:ensure t
+	:hook(prog-mode . highlight-indent-guides-mode)
+	:config
+	(setq highlight-indent-guides-method 'bitmap
+				highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line
+				highlight-indent-guides-auto-character-face-perc 90)
+	)
+
 
 (use-package vertico
-  :straight t
-  :ensure t
-  :init
-  (setq vertico-cycle t)
+	:straight t
+	:ensure t
+	:init
+	(setq vertico-cycle t)
 	(setq vertico-resize nil)
 	(setq vertico-count 10)
-  (vertico-mode)
+	(vertico-mode)
 	(vertico-mouse-mode))
 
 (use-package vertico-posframe
 	:straight t
-	:ensure t)
+	:ensure t
+	:config
+	(setq vertico-posframe-border-width 1
+				vertico-posframe-height 20
+				vertico-posframe-min-height 20))
 
 ;; (setq vertico-multiform-commands
 ;;       '((execute-extended-command
@@ -262,11 +409,69 @@
 ;; 				(file (:not posframe))
 ;; 				))
 
+(use-package bm
+	:straight t
+	:ensure t
+	:demand t
+
+	:init
+	;; restore on load (even before you require bm)
+	(setq bm-restore-repository-on-load t)
+
+
+	:config
+	;; Allow cross-buffer 'next'
+	(setq bm-cycle-all-buffers t)
+
+	;; where to store persistant files
+	(setq bm-repository-file "~/.config/emacs/bm-repository")
+
+	;; save bookmarks
+	(setq-default bm-buffer-persistence t)
+
+	;; Loading the repository from file when on start up.
+	(add-hook 'after-init-hook 'bm-repository-load)
+
+	;; Saving bookmarks
+	(add-hook 'kill-buffer-hook #'bm-buffer-save)
+
+	;; Saving the repository to file when on exit.
+	;; kill-buffer-hook is not called when Emacs is killed, so we
+	;; must save all bookmarks first.
+	(add-hook 'kill-emacs-hook #'(lambda nil
+																 (bm-buffer-save-all)
+																 (bm-repository-save)))
+
+	;; The `after-save-hook' is not necessary to use to achieve persistence,
+	;; but it makes the bookmark data in repository more in sync with the file
+	;; state.
+	(add-hook 'after-save-hook #'bm-buffer-save)
+
+	;; Restoring bookmarks
+	(add-hook 'find-file-hooks   #'bm-buffer-restore)
+	(add-hook 'after-revert-hook #'bm-buffer-restore)
+
+	;; The `after-revert-hook' is not necessary to use to achieve persistence,
+	;; but it makes the bookmark data in repository more in sync with the file
+	;; state. This hook might cause trouble when using packages
+	;; that automatically reverts the buffer (like vc after a check-in).
+	;; This can easily be avoided if the package provides a hook that is
+	;; called before the buffer is reverted (like `vc-before-checkin-hook').
+	;; Then new bookmarks can be saved before the buffer is reverted.
+	;; Make sure bookmarks is saved before check-in (and revert-buffer)
+	(add-hook 'vc-before-checkin-hook #'bm-buffer-save)
+
+
+	:bind (("C-<tab>" . bm-next)
+				 ("C-`" . bm-previous)
+				 ("M-RET" . bm-toggle))
+	)
+
 (require 'posframe)
 (defun my-posframe-poshandler-frame-top-center (info)
-  (cons (/ (- (plist-get info :parent-frame-width)
-              (plist-get info :posframe-width))
-           2)
+	(cons (/ (- (plist-get info :parent-frame-width)
+							(plist-get info :posframe-width))
+					 2)
 				50))
 
 (setq vertico-multiform-commands '((find-file (:not posframe))
@@ -325,7 +530,7 @@
 					treemacs-recenter-after-project-jump     'always
 					treemacs-recenter-after-project-expand   'on-distance
 					treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-					treemacs-project-follow-into-home        nil
+					treemacs-project-follow-into-home        t
 					treemacs-show-cursor                     nil
 					treemacs-show-hidden-files               t
 					treemacs-silent-filewatch                nil
@@ -344,8 +549,6 @@
 					treemacs-width-is-initially-locked       t
 					treemacs-workspace-switch-cleanup        nil)
 
-		(treemacs-follow-mode t)
-		(treemacs-project-follow-mode t)
 		(treemacs-filewatch-mode t)
 		(treemacs-fringe-indicator-mode 'always)
 		(when treemacs-python-executable
@@ -365,14 +568,13 @@
 				("C-x t e"   . treemacs)
 				))
 
-(use-package treemacs-all-the-icons
-	:straight t
+(use-package treemacs-nerd-icons
 	:after treemacs
-	:demand t
-	:config
-	(treemacs-load-theme "all-the-icons"))
+	:straight t
+  :config
+  (treemacs-load-theme "nerd-icons"))
 
-(treemacs)
+;; (treemacs)
 
 (use-package vertico-directory
 	:after vertico
@@ -408,34 +610,20 @@
 	:ensure t
 	:hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package starhugger
-	:after company
-	:straight (:type git :host github :repo "daanturo/starhugger.el")
-	:init
-	(setq starhugger-api-token "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")
-	;;(starhugger-auto-mode t)
-	:config
-	;; `starhugger-inline-menu-item' makes a conditional binding that is only active at the inline suggestion start
-	(global-set-key (kbd "C-x C-<tab>") 'starhugger-trigger-suggestion)
-	(keymap-set starhugger-inlining-mode-map "<tab>" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-line))
-	(keymap-set starhugger-inlining-mode-map "C-x C-<tab>" (starhugger-inline-menu-item #'starhugger-dismiss-suggestion))
-	(keymap-set starhugger-inlining-mode-map "M-[" (starhugger-inline-menu-item #'starhugger-show-prev-suggestion))
-	(keymap-set starhugger-inlining-mode-map "M-]" (starhugger-inline-menu-item #'starhugger-show-next-suggestion))
-	(keymap-set starhugger-inlining-mode-map "M-f" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-word)))
-
-(use-package yasnippet
-	:straight t
-	:ensure t
-	:demand t
-	:config
-	(yas-global-mode 1))
-
-(use-package yasnippet-snippets
-	:straight t
-	:demand t
-	:ensure t)
-
-(setq yas-triggers-in-field nil)
+;; (use-package starhugger
+;; 	:after company
+;; 	:straight (:type git :host github :repo "daanturo/starhugger.el")
+;; 	:init
+;; 	(setq starhugger-api-token "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")
+;; 	;;(starhugger-auto-mode t)
+;; 	:config
+;; 	;; `starhugger-inline-menu-item' makes a conditional binding that is only active at the inline suggestion start
+;; 	(global-set-key (kbd "C-x C-<tab>") 'starhugger-trigger-suggestion)
+;; 	(keymap-set starhugger-inlining-mode-map "<tab>" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-line))
+;; 	(keymap-set starhugger-inlining-mode-map "C-x C-<tab>" (starhugger-inline-menu-item #'starhugger-dismiss-suggestion))
+;; 	(keymap-set starhugger-inlining-mode-map "M-[" (starhugger-inline-menu-item #'starhugger-show-prev-suggestion))
+;; 	(keymap-set starhugger-inlining-mode-map "M-]" (starhugger-inline-menu-item #'starhugger-show-next-suggestion))
+;; 	(keymap-set starhugger-inlining-mode-map "M-f" (starhugger-inline-menu-item #'starhugger-accept-suggestion-by-word)))
 
 ;; (use-package cmake-ide
 ;;   :straight t
@@ -465,13 +653,13 @@
 	:straight t
 	:ensure t)
 
-(use-package anaconda-mode
-	:straight t
-	:ensure t
-	:config
-	(add-hook 'python-mode-hook 'anaconda-mode)
-	(add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-	)
+;; (use-package anaconda-mode
+;; 	:straight t
+;; 	:ensure t
+;; 	:config
+;; 	(add-hook 'python-mode-hook 'anaconda-mode)
+;; 	(add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+;; 	)
 
 (use-package lua-mode
 	:straight t
@@ -519,7 +707,8 @@
 																				("Assembly" asmfmt)
 																				("C" clang-format)
 																				("C#" csharpier)
-																				("C++" (astyle  "--style=google" "--indent=spaces=2" "-n"))
+																				("C++" (astyle  "--style=k&r" "--indent=spaces=2" "-n"))
+																				;;("C++" clang-format)
 																				("CMake" cmake-format)
 																				("CSS" prettier)
 																				("Dockerfile" dockfmt)
@@ -560,6 +749,8 @@
 (use-package undo-fu
 	:straight t
 	:ensure t)
+
+(undo-fu-session-global-mode t)
 
 (global-set-key (kbd "C-Z") 'undo-fu-only-undo)
 (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
@@ -637,7 +828,7 @@
 	 '("O" . meow-to-block)
 	 '("p" . cua-paste)
 	 '("q" . meow-quit)
-	 '("Q" . goto-line)
+	 '("Q" . goto-line-preview)
 	 '("r" . meow-replace)
 	 '("R" . meow-swap-grab)
 	 '("s" . meow-kill)
@@ -661,7 +852,9 @@
 (use-package impatient-mode
 	:straight t
 	:ensure t
-	:hook (pine-html-mode . impatient-mode))
+	:hook (pine-html-mode . impatient-mode)
+	:config
+	(add-to-list 'imp-default-user-filters '(pine-html-mode . nil)))
 
 ;; (use-package dimmer
 ;;   :straight t
@@ -684,10 +877,8 @@
 
 (use-package powerline
 	:straight t
-	:ensure t
-	:commands (powerline-center-theme)
-	)
-(powerline-default-theme)
+	:ensure t)
+(powerline-nano-theme)
 
 (define-derived-mode pine-html-mode web-mode "pineHTML")
 (add-to-list 'auto-mode-alist '("\\.html\\'" . pine-html-mode))
@@ -695,31 +886,34 @@
 (define-derived-mode pine-js-mode web-mode "pineJS")
 (add-to-list 'auto-mode-alist '("\\.js\\'" . pine-js-mode))
 
-(define-derived-mode pine-css-mode web-mode "pineCSS")
-(add-to-list 'auto-mode-alist '("\\.css\\'" . pine-css-mode))
+(define-derived-mode pine-css-mode css-mode "pineCSS")
+(add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
 
-(add-hook 'pine-html-hook (lambda () (smartparens-mode -1)))
+(add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-ts-mode))
+
+(use-package yasnippet
+	:straight t
+	:ensure t
+	:demand t
+	:config
+	(yas-global-mode 1))
+
+(use-package yasnippet-snippets
+	:straight t
+	:demand t
+	:ensure t)
+
+(setq yas-triggers-in-field nil)
 
 ;; (use-package company
 ;; 	:after eglot
-;;   :hook (eglot-managed-mode . company-mode)
 ;; 	:straight t
 ;; 	:ensure t
 ;; 	:config
-;; 	(setq company-idle-delay 0
-;; 				company-minimum-prefix-length 1
-;; 				company-show-numbers t
-;; 				company-tooltip-limit 10
-;; 				company-tooltip-align-annotations t
-;; 				company-tooltip-flip-when-above t
-;; 				company-selection-wrap-around t)
-;; 	(add-to-list 'company-transformers '(company-sort-by-occurrence
-;; 																			 company-sort-by-backend-importance))
-;; 	(setq company-backends '(company-capf company-yasnippet company-dabbrev-code))
-;; 	(setq company-frontends '(company-tng-frontend
-;; 														company-pseudo-tooltip-frontend
-;; 														company-echo-metadata-frontend))
+;; 	(setq company-backends '((company-capf company-dabbrev)))
 ;; 	)
+
+;; (add-hook 'after-init-hook 'global-company-mode)
 
 ;; (use-package company-quickhelp
 ;; 	:straight t
@@ -727,6 +921,114 @@
 ;; 	:ensure t
 ;; 	:init
 ;; 	(company-quickhelp-mode))
+
+(use-package nerd-icons-corfu
+	:straight t
+	:ensure t)
+
+;; (use-package jedi
+;; 	:straight t
+;; 	:ensure t)
+
+;; LSP Support
+(use-package eglot
+	:straight t
+	:after corfu
+	:ensure t
+	:demand t
+	:config
+	(add-to-list 'eglot-server-programs '(c-mode . ("clangd")))
+	(add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
+	(add-to-list 'eglot-server-programs '(c-ts-mode . ("clangd")))
+	(add-to-list 'eglot-server-programs '(c++-ts-mode . ("clangd")))
+	(add-to-list 'eglot-server-programs '(java-mode . ("jdtls" "--stdio")))
+	(add-to-list 'eglot-server-programs '(java-mode . ("jdtls" "--stdio")))
+	(add-to-list 'eglot-server-programs '(python-ts-mode . ("jedi-language-server")))
+	(add-to-list 'eglot-server-programs '(python-mode . ("jedi-language-server")))
+	(add-to-list 'eglot-server-programs
+							 `(pine-html-mode . ("vscode-html-language-server" "--stdio" )))
+	(add-to-list 'eglot-server-programs
+							 `(pine-css-mode . ("vscode-css-language-server" "--stdio" )))
+	(add-to-list 'eglot-server-programs
+							 `(pine-js-mode . ("typescript-language-server" "--stdio" )))
+	(add-to-list 'eglot-server-programs
+							 `(python-mode . ("jedi-language-server" "--stdio" )))
+	:custom
+	(eglot-autoshutdown t)
+	(eglot-events-buffer-size 10000)
+	(eglot-send-changes-idle-time 0)
+	(flymake-no-changes-timeout 5)
+	:hook
+	(python-mode . eglot-ensure)
+	(python-ts-mode . eglot-ensure)
+	(java-ts-mode . eglot-ensure)
+	(java-mode . eglot-ensure)
+	(c-mode . eglot-ensure)
+	(c++-mode . eglot-ensure)
+	(c-ts-mode . eglot-ensure)
+	(c++-ts-mode . eglot-ensure)
+	(pine-html-mode . eglot-ensure)
+	(pine-css-mode . eglot-ensure)
+	(pine-js-mode . eglot-ensure)
+	)
+
+(use-package codeium
+	:straight (:type git :host github :repo "Exafunction/codeium.el")
+	:init
+	;; use globally
+	(add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
+	;; or on a hook
+	;; (add-hook 'python-mode-hook
+	;;     (lambda ()
+	;;         (setq-local completion-at-point-functions '(codeium-completion-at-point))))
+
+	;; if you want multiple completion backends, use cape (https://github.com/minad/cape):
+	;; (add-hook 'python-mode-hook
+	;;     (lambda ()
+	;;         (setq-local completion-at-point-functions
+	;;             (list (cape-super-capf #'codeium-completion-at-point #'lsp-completion-at-point)))))
+	;; an async company-backend is coming soon!
+
+	;; codeium-completion-at-point is autoloaded, but you can
+	;; optionally set a timer, which might speed up things as the
+	;; codeium local language server takes ~0.2s to start up
+	(add-hook 'emacs-startup-hook
+						(lambda () (run-with-timer 0.1 nil #'codeium-init)))
+
+	:defer t ;; lazy loading, if you want
+	:config
+	(setq use-dialog-box nil) ;; do not use popup boxes
+
+	;; if you don't want to use customize to save the api-key
+	;; (setq codeium/metadata/api_key "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+	;; get codeium status in the modeline
+	(setq codeium-mode-line-enable
+				(lambda (api) (not (memq api '(CancelRequest AcceptCompletion)))))
+	;;(add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
+	;; alternatively for a more extensive mode-line
+	(add-to-list 'mode-line-format '(-50 "" codeium-mode-line) t)
+
+	;; use M-x codeium-diagnose to see apis/fields that would be sent to the local language server
+	(setq codeium-api-enabled
+				(lambda (api)
+					(memq api '(GetCompletions CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
+	;; you can also set a config for a single buffer like this:
+	;; (add-hook 'python-mode-hook
+	;;     (lambda ()
+	;;         (setq-local codeium/editor_options/tab_size 4)))
+
+	;; You can overwrite all the codeium configs!
+	;; for example, we recommend limiting the string sent to codeium for better performance
+	(defun my-codeium/document/text ()
+		(buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
+	;; if you change the text, you should also change the cursor_offset
+	;; warning: this is measured by UTF-8 encoded bytes
+	(defun my-codeium/document/cursor_offset ()
+		(codeium-utf8-byte-length
+		 (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
+	(setq codeium/document/text 'my-codeium/document/text)
+	(setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
+(add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
 
 (defun my-corfu-quit ()
 	(interactive)
@@ -744,10 +1046,9 @@
 	(corfu-auto-delay 0)
 	(corfu-auto-prefix 1)
 	(corfu-on-exact-match nil)
-	(corfu-separator 32)
 	(corfu-min-width 1)
 	(corfu-max-width 9999)
-	(corfu-echo-delay nil) ;; Disable automatic echo and popup
+	(corfu-echo-delay nil)
 	(corfu-popupinfo-delay 0.1)
 	(corfu-popupinfo-hide nil)
 	:init
@@ -755,50 +1056,14 @@
 	(corfu-history-mode)
 	(corfu-popupinfo-mode))
 
-(use-package nerd-icons-corfu
-	:after corfu
-	:straight t
-	:ensure t
-	:init
-	(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
 (define-key corfu-map [escape] 'my-corfu-quit)
 
-;; LSP Support
-(use-package eglot
-	:after corfu
-	:ensure t
-	:demand t
-	:config
-	(add-to-list 'eglot-server-programs '(c-mode . ("ccls")))
-	(add-to-list 'eglot-server-programs '(c++-mode . ("ccls")))
-	(add-to-list 'eglot-server-programs '(c-ts-mode . ("ccls")))
-	(add-to-list 'eglot-server-programs '(c++-ts-mode . ("ccls")))
-	(add-to-list 'eglot-server-programs
-							 `(pine-html-mode . ("vscode-html-language-server" "--stdio" )))
-	(add-to-list 'eglot-server-programs
-							 `(pine-css-mode . ("vscode-css-language-server" "--stdio" )))
-	(add-to-list 'eglot-server-programs
-							 `(pine-js-mode . ("typescript-language-server" "--stdio" )))
-	:custom
-	(eglot-autoshutdown t)
-	(eglot-events-buffer-size 50000)
-	(eglot-send-changes-idle-time 0)
-	(flymake-no-changes-timeout 5)
-	:hook
-	(python-mode . eglot-ensure)
-	(c-mode . eglot-ensure)
-	(c++-mode . eglot-ensure)
-	(c-ts-mode . eglot-ensure)
-	(c++-ts-mode . eglot-ensure)
-	(pine-html-mode . eglot-ensure)
-	(pine-css-mode . eglot-ensure)
-	(pine-js-mode . eglot-ensure)
-	)
 ;; for corfu
 (use-package cape
 	:straight t
 	:ensure t)
+
+(setq cape-dabbrev-check-other-buffers nil)
 
 (add-hook 'c++-ts-mode-hook
 					(lambda ()
@@ -812,9 +1077,17 @@
 	(setq-local completion-at-point-functions
 							(list (cape-super-capf
 										 #'eglot-completion-at-point
-										 (cape-company-to-capf #'company-yasnippet)))))
+										 #'codeium-completion-at-point
+										 #'cape-dabbrev
+										 (cape-company-to-capf #'company-yasnippet)
+										 #'cape-file))))
+
+(setq cape-dabbrev-min-length 1)
+(add-hook 'text-mode-hook (lambda () (setq-local completion-at-point-functions (list (cape-super-capf #'cape-dabbrev #'cape-file #'cape-history #'cape-dict)))))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+
+(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 
 (use-package eldoc-box
 	:straight t
@@ -835,28 +1108,27 @@
 	(setq web-mode-enable-auto-opening t)
 	(setq web-mode-enable-auto-closing t)
 	(setq web-mode-enable-auto-quoting t)
-	(setq web-mode-enable-css-colorization t)
 	(setq web-mode-enable-current-element-highlight t)
 	(setq web-mode-enable-current-column-highlight nil)
 	)
 
-(use-package sublimity
-	:straight t
-	:ensure t
-	:init
-	(sublimity-mode))
+;; (use-package sublimity
+;; 	:straight t
+;; 	:ensure t
+;; 	:init
+;; 	(sublimity-mode))
 
-(require 'sublimity-scroll)
+;; (require 'sublimity-scroll)
 
-(setq sublimity-scroll-weight 1
-			sublimity-scroll-drift-length 1)
+;; (setq sublimity-scroll-weight 1
+;; 			sublimity-scroll-drift-length 1)
 
-(use-package fast-scroll
-	:straight t
-	:ensure t
-	:init
-	(fast-scroll-config)
-	(fast-scroll-mode))
+;; (use-package fast-scroll
+;; 	:straight t
+;; 	:ensure t
+;; 	:init
+;; 	(fast-scroll-config)
+;; 	(fast-scroll-mode))
 
 ;; Store automatic customisation options elsewhere
 (setq custom-file (locate-user-emacs-file "custom.el"))
@@ -866,27 +1138,24 @@
 (setq use-short-answers t)
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
+(setq truncate-lines t)
 (save-place-mode t)
 (recentf-mode t)
 
-(add-hook 'centaur-tabs-mode-hook (lambda()
-																		(centaur-tabs-headline-match)))
-
 (defun my-configure-font (frame)
-	(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font Mono-11")
-	(set-face-attribute 'mode-line nil :font "JetBrainsMono Nerd Font Mono-11")
-	(set-face-attribute 'variable-pitch nil :font "JetBrainsMono Nerd Font Mono-11")
-	(set-face-attribute 'fixed-pitch nil :font "JetBrainsMono Nerd Font Mono-11")
+	(set-face-attribute 'default nil :font "Iosevka Nerd Font Propo-14")
+	(set-face-attribute 'mode-line nil :font "DroidSansM Nerd Font Propo-12")
+	(set-face-attribute 'variable-pitch nil :font "DroidSansM Nerd Font-12")
+	(set-face-attribute 'fixed-pitch nil :font "Iosevka Nerd Font Propo-14")
+	(run-with-timer 0.1 nil #'theme-magic-from-emacs)
+	(theme-magic-export-theme-mode t)
+	(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 	;;(remove-hook 'after-make-frame-functions #'my-configure-font)
 	)
 
-(defun modes-server (frame)
-	(remove-hook 'server-after-make-frame-hook #'my-configure-font))
-
-(add-hook 'server-after-make-frame-hook 'centaur-tabs-mode 1)
+(add-hook 'server-after-make-frame-hook 'awesome-tab-mode)
 (add-hook 'server-after-make-frame-hook 'treemacs--init)
 (add-hook 'after-make-frame-functions #'my-configure-font)
-
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -901,3 +1170,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'scroll-left 'disabled nil)

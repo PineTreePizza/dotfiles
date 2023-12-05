@@ -6,8 +6,19 @@ bool initSDL() {
   bool success = true;
   if(SDL_Init(SDL_INIT_VIDEO < 0)) {
     std::clog << "ERROR: FAILED TO INITIALIZE SDL_VIDEO, CODE: " << SDL_GetError() << std::endl;
+    success = false;
   } else {
-    ${1:window} = SDL_CreateWindow("${2:windowName}", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ${3:width} , ${4:height}, SDL_WINDOW_SHOWN);
+    ${1:window} = SDL_CreateWindow("${2:windowName}", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ${3:width}, ${4:height}, SDL_WINDOW_SHOWN);
+    if(${1:window} != nullptr) {
+      ${5:renderer} = SDL_CreateRenderer(${1:window},1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_SOFTWARE);
+      if(${5:renderer} != nullptr) {
+        SDL_RenderSetScale(${5:renderer}, ${6:scale}, ${6:scale});
+      } else {
+        success = false;
+      }
+    } else {
+      success = false;
+    }
   }
   return success;
 }

@@ -30,12 +30,12 @@ i3lock \
 	--radius 250 \
 	--ring-width 120 \
 	--indicator \
-	--verif-font="Terminess Nerd Font"\  \
-	--wrong-font="Terminess Nerd Font"\  \
-	--greeter-font="Terminess Nerd Font"\  \
-	--layout-font="Terminess Nerd Font"\  \
-	--date-font="Terminess Nerd Font"\  \
-	--time-font="Terminess Nerd Font"\  \
+	--verif-font="Iosevka Nerd Font Propo"\  \
+	--wrong-font="Iosevka Nerd Font Propo"\  \
+	--greeter-font="Iosevka Nerd Font Propo"\  \
+	--layout-font="Iosevka Nerd Font Propo"\  \
+	--date-font="Iosevka Nerd Font Propo"\  \
+	--time-font="Iosevka Nerd Font Propo"\  \
 	--verif-size=64\  \
 	--wrong-size=64\  \
 	--greeter-size=64\  \

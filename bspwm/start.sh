@@ -10,6 +10,8 @@ xss-lock -n $HOME/.config/bspwm/dim-screen.sh --transfer-sleep-lock -- $HOME/.co
 
 #emacs --daemon --display=GTK -l .config/emacs/init.el &
 
-picom &
-
 $HOME/.config/polybar/launch.sh &
+
+sleep 1
+
+compfy &

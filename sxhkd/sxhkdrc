@@ -48,7 +48,7 @@ super + shift + ctrl + S
 	  steam
 
 super + shift + ctrl + W
-	  firefox
+	  waterfox
 
 super + shift + ctrl + R
 	  emacs
