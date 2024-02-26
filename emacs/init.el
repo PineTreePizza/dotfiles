@@ -11,20 +11,20 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; (setq mouse-wheel-scroll-amount '(1))
-;; (setq scroll-step 1)
+(setq mouse-wheel-scroll-amount '(1))
+(setq scroll-step 1)
 (setq scroll-conservatively 10000)
-(setq mouse-wheel-progressive-speed nil)
-(pixel-scroll-precision-mode t)
-(setq-default word-wrap -1)
-(toggle-truncate-lines 1)
-(global-set-key (kbd "<wheel-right>") '(lambda ()
-																				 (interactive)
-																				 (scroll-left 1)))
+(setq mouse-wheel-progressive-speed t)
+;; (pixel-scroll-precision-mode t)
+;; (setq-default word-wrap -1)
+;; (toggle-truncate-lines 1)
 (global-set-key (kbd "<wheel-left>") '(lambda ()
 																				(interactive)
-																				(scroll-right 1)))
-;; (global-set-key (kbd "<wheel-down>") 'pixel-scroll-up)
+																				(scroll-left 1)))
+(global-set-key (kbd "<wheel-right>") '(lambda ()
+																				 (interactive)
+																				 (scroll-right 1)))
+																				; (global-set-key (kbd "<wheel-down>") 'pixel-scroll-up)
 ;; (global-set-key (kbd "<wheel-up>") 'pixel-scroll-down)
 
 (setq package-enable-at-startup nil)
@@ -39,14 +39,16 @@
 
 (setq inhibit-startup-message t)
 ;;(global-hl-line-mode 1)
-;;(toggle-debug-on-error)
+(toggle-debug-on-error)
 
-(scroll-bar-mode  -1)
+(scroll-bar-mode -1)
 (tool-bar-mode -1)
-(tooltip-mode  -1)
+(menu-bar-mode 1)
+(tooltip-mode  1)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode 1)
+(global-ede-mode)
 (electric-pair-mode 1)
-(setq gc-cons-threshold 5000000000)
+(setq gc-cons-threshold 500000)
 (setq posframe-mouse-banish nil)
 (setq warning-minimum-level :emergency)
 
@@ -66,15 +68,17 @@
 (setq auto-save-default nil)
 (setq indent-tabs-mode nil)
 (setq-default tab-width 2)
-
-(set-face-attribute 'default nil :font "Iosevka Nerd Font Propo-14")
-(set-face-attribute 'mode-line nil :font "DroidSansM Nerd Font Propo-12")
-(set-face-attribute 'variable-pitch nil :font "DroidSansM Nerd Font-12")
-(set-face-attribute 'fixed-pitch nil :font "Iosevka Nerd Font Propo-14")
-
-(setq-default cursor-type '(bar . 1))
-(menu-bar-mode -1)
+(set-face-attribute 'default nil :font "FiraCodeNerdFontMono-11")
+(set-face-attribute 'mode-line nil :font "FiraCodeNerdFontMono-11")
+(set-face-attribute 'variable-pitch nil :font "FiraCodeNerdFontMono-11")
+(set-face-attribute 'fixed-pitch nil :font "FiraCodeNerdFontMono-11")
+(setq-default cursor-type '(bar . 2))
 (cua-mode 1)
+
+(setq bg-color (concat "#" (string-trim-right (shell-command-to-string "echo $BACKGROUND_COLOR"))))
+(setq fg-color (concat "#" (string-trim-right (shell-command-to-string "echo $FOREGROUND_COLOR"))))
+(setq bg-alt-color (concat "#" (string-trim-right (shell-command-to-string "echo $BACKGROUND_ALT_COLOR"))))
+(setq ac-color (concat "#" (string-trim-right (shell-command-to-string "echo $ACCENT_COLOR"))))
 
 ;;###-BASIC KEY BINDS-###;;
 
@@ -109,8 +113,6 @@
 (global-set-key (kbd "M-g") 'goto-line-preview)
 (global-set-key (kbd "C-;") 'split-window-vertically-down-and-create-shell-buffer)
 
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
 (defadvice keyboard-escape-quit
     (around keyboard-escape-quit-dont-close-windows activate)
   (let ((buffer-quit-function (lambda () ()))) ad-do-it))
@@ -141,17 +143,39 @@
 	:demand t
   :ensure t
   )
-
 (use-package nerd-icons
   :straight t
 	:demand t
   :ensure t
   )
 
-(use-package theme-magic
+;; This assumes you've installed the package via MELPA.
+(use-package ligature
 	:straight t
-	:ensure t)
-
+	:ensure t
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
 ;; (use-package base16-theme
 ;; 	:straight t
 ;; 	:ensure t)
@@ -165,10 +189,13 @@
 ;; (load-theme 'nano-dark t)
 ;; (enable-theme 'nano-dark)
 
+
+
 ;; (use-package timu-spacegrey-theme
 ;;   :straight t
 ;;   :ensure t)
 ;; (load-theme 'timu-spacegrey t)
+
 
 (use-package modus-themes
 	:straight t
@@ -181,52 +208,74 @@
 				modus-themes-custom-auto-reload t
 				modus-themes-prompts 'thin
 				modus-themes-completions
-				'((matches . (bold underline italic))
+				'((matches . (bold italic))
 					(selection . (regular italic)))
 				)
+	;; (setq modus-themes-common-palette-overrides
+	;; 			'((comment "#648b7e")
+	;; 				(bg-main "#ffffff")
+	;; 				(bg-dim "#dfe6f3")
+	;; 				(fg-main "#0e1620")
+	;; 				(fg-alt "#644458")
+	;; 				(bg-hover "#d8d9da")
+	;; 				(string "#a78c9d")
+	;; 				(bg-mode-line-active "#606c7f")
+	;; 				(fg-mode-line-active fg-main)
+	;; 				(border-mode-line-active "#0a0a0a")
+	;; 				(cursor "#a78c9d")
+	;; 				(builtin "#a78c9d")
+	;; 				(constant "#8bc9bb")
+	;; 				(docstring "#63a38e")
+	;; 				(fnname "#c98b8b")
+	;; 				(keyword "#9f8bc9")
+	;; 				(preprocessor "#8b8bc9")
+	;; 				(type "#606c7f")
+	;; 				(variable "#c9b08b")
+	;; 				)
+	;; 			)
 	(setq modus-themes-common-palette-overrides
-				'((comment "#648b7e")
-					(bg-main "#3e4249")
-					(bg-dim "#313640")
-					(fg-main "#e9f0f9")
-					(fg-alt "#bc9fb1")
-					(bg-hover "#606c7f")
-					(string "#bc9fb1")
-					(bg-mode-line-active "#606c7f")
-					(fg-mode-line-active fg-main)
-					(border-mode-line-active "#FFFFFF")
-					(cursor "#bc9fb1")
-					(builtin "#bc9fb1")
-					(constant "#8bc9bb")
-					(docstring "#63a38e")
-					(fnname "#c98b8b")
-					(keyword "#9f8bc9")
-					(preprocessor "#8b8bc9")
+				`((comment "#648b7e")
+					(bg-main ,bg-color)
+					(bg-dim ,bg-alt-color)
+					(fg-main ,fg-color)
+					(fg-alt "#644458")
+					(bg-hover ,ac-color)
+					(string "#9a8191")
+					(bg-mode-line-active ,bg-color)
+					(fg-mode-line-active ,bg-alt-color)
+					(border-mode-line-active ,ac-color)
+					(cursor "#9a8191")
+					(builtin "#9a8191")
+					(constant "#6f9a90")
+					(docstring "#4b7366")
+					(fnname "#a17272")
+					(keyword "#7c6e9a")
+					(preprocessor "#7474a5")
 					(type "#606c7f")
-					(variable "#c9b08b")
-					)
-				)
+					(variable "#c9b08b")))
 	)
 
-(load-theme 'modus-vivendi-tinted t)
-(enable-theme 'modus-vivendi-tinted)
+(if (string= bg-color "#FAFAFA")
+    (progn
+      (load-theme 'modus-operandi t)
+      (enable-theme 'modus-operandi))
+  (progn
+    (load-theme 'modus-vivendi-tinted t)
+    (enable-theme 'modus-vivendi-tinted)))
 
 ;; (use-package nano-theme
 ;; 	:straight t
 ;; 	:ensure t)
 
-;; (load-theme 'nano-dark t)
-
-(unless (daemonp)
-  (theme-magic-from-emacs))
+;; (load-theme 'nano-light t)
 
 (use-package dashboard
 	:straight t
 	:demand t
-  :ensure t
-  :config
+	:ensure t
+	:config
 	(setq dashboard-banner-logo-title "Codin' time")
-	(setq dashboard-startup-banner "/home/pine/.config/emacs/banner.png")
+	(setq dashboard-startup-banner "~/.config/emacs/banner.png")
 	(setq dashboard-center-content t)
 	(setq dashboard-items '((recents  . 5)
 													(bookmarks . 5)))
@@ -283,13 +332,29 @@
 ;; 	("M-<down>" . centaur-tabs-backward-group)
 ;; 	)
 
+;; (defun cetaur-tabs-hide-tab (x)
+;; 	(let ((name (format "%s" x)))
+;; 		(or
+;; 		 (string-prefix-p "*Messages" name)
+;; 		 (string-prefix-p "*Async-native-compile-log" name)
+;; 		 (string-prefix-p "*Compile-Log*" name)
+;; 		 (string-prefix-p "*straight-process" name)
+;; 		 (derived-mode-p 'treemacs-mode)
+;; 		 (string-prefix-p "*scratch" name)
+;; 		 (string-prefix-p " *eldoc" name)
+;; 		 (string-prefix-p " *eldoc-box*" name)
+;; 		 (string-prefix-p "*vterm*" name)
+;; 		 (string-prefix-p " *eldoc-box" name)
+;; 		 (string-prefix-p "*dashboard" name)
+;; 		 )))
+
 (use-package awesome-tab
 	:after all-the-icons
 	:straight t
 	:ensure t
 	:demand t
 	:config
-	(setq awesome-tab-height 160)
+	(setq awesome-tab-height 100)
 	:bind
 	("M-<left>" . awesome-tab-backward)
 	("M-<right>" . awesome-tab-forward)
@@ -297,23 +362,28 @@
 	("M-<down>" . awesome-tab-backward-group)
 	)
 
+(awesome-tab-mode)
+
 (defun awesome-tab-hide-tab (x)
-  (let ((name (format "%s" x)))
-    (or
-     (string-prefix-p "*Messages" name)
-     (string-prefix-p "*Async-native-compile-log" name)
-     (string-prefix-p "*Compile-Log*" name)
-     (string-prefix-p "*straight-process" name)
+	(let ((name (format "%s" x)))
+		(or
+		 (string-prefix-p "*Messages" name)
+		 (string-prefix-p "*Async-native-compile-log" name)
+		 (string-prefix-p "*Compile-Log*" name)
+		 (string-prefix-p "*straight-process" name)
 		 (derived-mode-p 'treemacs-mode)
 		 (string-prefix-p "*scratch" name)
 		 (string-prefix-p " *eldoc" name)
 		 (string-prefix-p " *eldoc-box*" name)
 		 (string-prefix-p "*vterm*" name)
 		 (string-prefix-p " *eldoc-box" name)
-     (string-prefix-p "*dashboard" name)
-     )))
+		 (string-prefix-p "*dashboard" name)
+		 )))
 
-(awesome-tab-mode t)
+(use-package deadgrep
+	:straight t
+	:ensure t
+	)
 
 (defun org-setup ()
 	(org-indent-mode)
@@ -347,6 +417,10 @@
 	:straight t
 	:ensure t)
 
+(use-package zenity-color-picker
+	:straight t
+	:ensure t)
+
 (with-eval-after-load 'org (global-org-modern-mode))
 
 (use-package org-roam
@@ -354,33 +428,40 @@
 	:straight t
 	:ensure t)
 
-(use-package org-roam-ui
-	:after org
+(use-package gcmh
+	:straight t
+	:ensure t
+	:init
+	(gcmh-mode 1))
+
+(use-package  indent-guide
+	:straight t
+	:ensure t
+	)
+
+(add-hook 'prog-mode-hook 'indent-guide-mode)
+
+(use-package highlight-thing
+	:straight t
+	:ensure t
+	:config
+	(setq highlight-thing-delay-seconds 0.5))
+(global-highlight-thing-mode)
+
+;; (use-package devdocs
+;; 	:straight t
+;; 	:ensure t)
+
+(use-package quickrun
 	:straight t
 	:ensure t)
 
-(use-package cmake-ide
+(use-package marginalia
 	:straight t
-	:ensure t
-	)
-
-(use-package rtags
-	:straight t
-	:ensure t
-	)
-(require 'rtags)
-(cmake-ide-setup)
-
-(use-package highlight-indent-guides
-	:straight t
-	:ensure t
-	:hook(prog-mode . highlight-indent-guides-mode)
-	:config
-	(setq highlight-indent-guides-method 'bitmap
-				highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line
-				highlight-indent-guides-auto-character-face-perc 90)
-	)
-
+  ;; :bind (:map minibuffer-local-map
+  ;;        ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
 
 (use-package vertico
 	:straight t
@@ -396,9 +477,9 @@
 	:straight t
 	:ensure t
 	:config
-	(setq vertico-posframe-border-width 1
+	(setq vertico-posframe-border-width 2
 				vertico-posframe-height 20
-				vertico-posframe-min-height 20))
+				vertico-posframe-min-height 2))
 
 ;; (setq vertico-multiform-commands
 ;;       '((execute-extended-command
@@ -408,6 +489,14 @@
 ;;         (t posframe)
 ;; 				(file (:not posframe))
 ;; 				))
+
+(use-package projectile
+	:ensure t
+	:straight t
+	:init
+	(projectile-mode +1)
+	:bind (:map projectile-mode-map
+							("C-c p" . projectile-command-map)))
 
 (use-package bm
 	:straight t
@@ -462,10 +551,20 @@
 	(add-hook 'vc-before-checkin-hook #'bm-buffer-save)
 
 
-	:bind (("C-<tab>" . bm-next)
-				 ("C-`" . bm-previous)
+	:bind (("C-," . bm-next)
+				 ("C->" . bm-previous)
 				 ("M-RET" . bm-toggle))
 	)
+
+(use-package consult
+	:straight t
+	:ensure t
+	:bind (
+				 ("C-s" . consult-line)))
+
+(defun consult-line-from-isearch ()
+  (interactive)
+  (consult-line isearch-string))
 
 (require 'posframe)
 (defun my-posframe-poshandler-frame-top-center (info)
@@ -474,12 +573,38 @@
 					 2)
 				50))
 
-(setq vertico-multiform-commands '((find-file (:not posframe))
-																	 (t posframe
-																			(vertico-count . 20)
-																			(vertico-posframe-poshandler . my-posframe-poshandler-frame-top-center)
-																			(vertico-posframe-parameters . ((left-fringe . 20) (right-fringe . 20)))
-																			)))
+(defun my-posframe-poshandler-frame-centered (info)
+  (let* ((parent-frame (plist-get info :parent-frame))
+         (parent-frame-width (frame-pixel-width parent-frame))
+         (parent-frame-height (frame-pixel-height parent-frame))
+         (posframe-width (plist-get info :posframe-width))
+         (posframe-height (plist-get info :posframe-height))
+         (left-offset (floor (/ (- parent-frame-width posframe-width) 2)))
+         (top-offset (floor (/ (- parent-frame-height posframe-height) 3))))
+    (cons left-offset top-offset)))
+
+;;(find-file (:not posframe))
+(setq vertico-multiform-commands '(
+																	 (find-file (:not posframe))
+																	 (consult-line (:not posframe))
+																	 ;; (consult-line
+																	 ;; 	posframe
+																	 ;; 	(vertico-count . 5)
+																	 ;; 	(vertico-posframe-height . 5)
+																 	 ;; 	(vertico-posframe-poshandler . my-posframe-poshandler-frame-centered)
+																	 ;; 	(vertico-posframe-parameters . ((left-fringe . 20) (right-fringe . 20))))
+																	 ;; (find-file
+																	 ;; 	posframe
+																	 ;; 	(vertico-count . 20)
+																	 ;; 	(vertico-posframe-height . 20)
+																 	 ;; 	(vertico-posframe-poshandler . my-posframe-poshandler-frame-centered)
+																	 ;; 	(vertico-posframe-parameters . ((left-fringe . 20) (right-fringe . 20))))
+																	 (t
+																		posframe
+																		(vertico-count . 20)
+																		(vertico-posframe-poshandler . my-posframe-poshandler-frame-top-center)
+																		(vertico-posframe-parameters . ((left-fringe . 20) (right-fringe . 20)))
+																		)))
 
 (vertico-multiform-mode 1)
 
@@ -571,10 +696,8 @@
 (use-package treemacs-nerd-icons
 	:after treemacs
 	:straight t
-  :config
-  (treemacs-load-theme "nerd-icons"))
-
-;; (treemacs)
+	:config
+	(treemacs-load-theme "nerd-icons"))
 
 (use-package vertico-directory
 	:after vertico
@@ -604,6 +727,10 @@
 	:ensure t
 	:init
 	(savehist-mode))
+
+(use-package rainbow-mode
+	:straight t
+	:ensure t)
 
 (use-package rainbow-delimiters
 	:straight t
@@ -665,6 +792,12 @@
 	:straight t
 	:ensure t)
 
+(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-mode))
+
+(use-package nix-mode
+	:straight t
+	:ensure t)
+
 ;; (use-package dired-sidebar
 ;;   :straight t
 ;;   :bind ("C-x t" . dired-sidebar-toggle-sidebar)
@@ -705,10 +838,11 @@
 	:config
 	(setq format-all-default-formatters '(
 																				("Assembly" asmfmt)
+																				("Nix" nixfmt)
 																				("C" clang-format)
 																				("C#" csharpier)
-																				("C++" (astyle  "--style=k&r" "--indent=spaces=2" "-n"))
-																				;;("C++" clang-format)
+																				;;("C++" (astyle  "--style=k&r" "--indent=spaces=2" "-n"))
+																				("C++" clang-format)
 																				("CMake" cmake-format)
 																				("CSS" prettier)
 																				("Dockerfile" dockfmt)
@@ -746,14 +880,8 @@
 				)
 	)
 
-(use-package undo-fu
-	:straight t
-	:ensure t)
-
-(undo-fu-session-global-mode t)
-
-(global-set-key (kbd "C-Z") 'undo-fu-only-undo)
-(global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
+(global-set-key (kbd "C-Z") 'undo-only)
+(global-set-key (kbd "C-S-z") 'undo-redo)
 
 (use-package meow
 	:straight t
@@ -833,8 +961,8 @@
 	 '("R" . meow-swap-grab)
 	 '("s" . meow-kill)
 	 '("t" . meow-till)
-	 '("u" . undo-fu-only-undo)
-	 '("U" . undo-fu-only-redo)
+	 '("u" . undo-only)
+	 '("U" . only-redo)
 	 '("v" . meow-visit)
 	 '("w" . meow-mark-word)
 	 '("W" . meow-mark-symbol)
@@ -897,7 +1025,7 @@
 	:demand t
 	:config
 	(yas-global-mode 1))
-
+(define-key yas-minor-mode-map (kbd "<tab>") yas-maybe-expand)
 (use-package yasnippet-snippets
 	:straight t
 	:demand t
@@ -942,6 +1070,7 @@
 	(add-to-list 'eglot-server-programs '(c-ts-mode . ("clangd")))
 	(add-to-list 'eglot-server-programs '(c++-ts-mode . ("clangd")))
 	(add-to-list 'eglot-server-programs '(java-mode . ("jdtls" "--stdio")))
+	(add-to-list 'eglot-server-programs '(lua-mode . ("lua-language-server")))
 	(add-to-list 'eglot-server-programs '(java-mode . ("jdtls" "--stdio")))
 	(add-to-list 'eglot-server-programs '(python-ts-mode . ("jedi-language-server")))
 	(add-to-list 'eglot-server-programs '(python-mode . ("jedi-language-server")))
@@ -962,6 +1091,7 @@
 	(python-mode . eglot-ensure)
 	(python-ts-mode . eglot-ensure)
 	(java-ts-mode . eglot-ensure)
+	(lua-mode . eglot-ensure)
 	(java-mode . eglot-ensure)
 	(c-mode . eglot-ensure)
 	(c++-mode . eglot-ensure)
@@ -972,69 +1102,10 @@
 	(pine-js-mode . eglot-ensure)
 	)
 
-(use-package codeium
-	:straight (:type git :host github :repo "Exafunction/codeium.el")
-	:init
-	;; use globally
-	(add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
-	;; or on a hook
-	;; (add-hook 'python-mode-hook
-	;;     (lambda ()
-	;;         (setq-local completion-at-point-functions '(codeium-completion-at-point))))
-
-	;; if you want multiple completion backends, use cape (https://github.com/minad/cape):
-	;; (add-hook 'python-mode-hook
-	;;     (lambda ()
-	;;         (setq-local completion-at-point-functions
-	;;             (list (cape-super-capf #'codeium-completion-at-point #'lsp-completion-at-point)))))
-	;; an async company-backend is coming soon!
-
-	;; codeium-completion-at-point is autoloaded, but you can
-	;; optionally set a timer, which might speed up things as the
-	;; codeium local language server takes ~0.2s to start up
-	(add-hook 'emacs-startup-hook
-						(lambda () (run-with-timer 0.1 nil #'codeium-init)))
-
-	:defer t ;; lazy loading, if you want
-	:config
-	(setq use-dialog-box nil) ;; do not use popup boxes
-
-	;; if you don't want to use customize to save the api-key
-	;; (setq codeium/metadata/api_key "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
-	;; get codeium status in the modeline
-	(setq codeium-mode-line-enable
-				(lambda (api) (not (memq api '(CancelRequest AcceptCompletion)))))
-	;;(add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
-	;; alternatively for a more extensive mode-line
-	(add-to-list 'mode-line-format '(-50 "" codeium-mode-line) t)
-
-	;; use M-x codeium-diagnose to see apis/fields that would be sent to the local language server
-	(setq codeium-api-enabled
-				(lambda (api)
-					(memq api '(GetCompletions CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-	;; you can also set a config for a single buffer like this:
-	;; (add-hook 'python-mode-hook
-	;;     (lambda ()
-	;;         (setq-local codeium/editor_options/tab_size 4)))
-
-	;; You can overwrite all the codeium configs!
-	;; for example, we recommend limiting the string sent to codeium for better performance
-	(defun my-codeium/document/text ()
-		(buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-	;; if you change the text, you should also change the cursor_offset
-	;; warning: this is measured by UTF-8 encoded bytes
-	(defun my-codeium/document/cursor_offset ()
-		(codeium-utf8-byte-length
-		 (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-	(setq codeium/document/text 'my-codeium/document/text)
-	(setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
-(add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
-
 (defun my-corfu-quit ()
 	(interactive)
-	(if (minibufferp)
-			(keyboard-escape-quit)
-		(corfu-quit)))
+	(keyboard-escape-quit)
+	(corfu-quit))
 
 (use-package corfu
 	:demand t
@@ -1063,7 +1134,41 @@
 	:straight t
 	:ensure t)
 
-(setq cape-dabbrev-check-other-buffers nil)
+(use-package yasnippet-capf
+	:straight t
+	:ensure t)
+
+(defun my/eglot-capf (&optional arg)
+	(setq-local completion-at-point-functions
+							(list (cape-capf-noninterruptible
+										 (cape-capf-buster
+											(cape-capf-properties
+											 (cape-capf-super
+												(if arg
+														arg
+													(car completion-at-point-functions))
+												#'eglot-completion-at-point
+												#'yasnippet-capf
+												;;#'tabnine-completion-at-point
+												#'cape-dabbrev
+												#'cape-file)
+											 :sort t
+											 :exclusive 'no))))))
+
+
+;; (defun my/eglot-capf ()
+;; 	(setq-local completion-at-point-functions
+;; 							(list (cape-super-capf
+;; 										 #'eglot-completion-at-point
+;; 										 #'cape-dabbrev
+;; 										 (cape-company-to-capf #'company-yasnippet)
+;; 										 #'cape-file))))
+(add-to-list 'completion-at-point-functions #'yas-expand)
+(add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
+(add-to-list 'completion-at-point-functions #'cape-file t)
+(add-to-list 'completion-at-point-functions #'cape-tex t)
+(add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+(add-to-list 'completion-at-point-functions #'cape-keyword t)
 
 (add-hook 'c++-ts-mode-hook
 					(lambda ()
@@ -1073,14 +1178,62 @@
 					(lambda ()
 						(yas-activate-extra-mode 'c-mode)))
 
-(defun my/eglot-capf ()
-	(setq-local completion-at-point-functions
-							(list (cape-super-capf
-										 #'eglot-completion-at-point
-										 #'codeium-completion-at-point
-										 #'cape-dabbrev
-										 (cape-company-to-capf #'company-yasnippet)
-										 #'cape-file))))
+;; (use-package codeium
+;; 	:straight (:type git :host github :repo "Exafunction/codeium.el")
+;; 	:init
+;; 	;; use globally
+;; 	(add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
+;; 	;; or on a hook
+;; 	;; (add-hook 'python-mode-hook
+;; 	;;     (lambda ()
+;; 	;;         (setq-local completion-at-point-functions '(codeium-completion-at-point))))
+
+;; 	;; if you want multiple completion backends, use cape (https://github.com/minad/cape):
+;; 	;; (add-hook 'python-mode-hook
+;; 	;;     (lambda ()
+;; 	;;         (setq-local completion-at-point-functions
+;; 	;;             (list (cape-super-capf #'codeium-completion-at-point #'lsp-completion-at-point)))))
+;; 	;; an async company-backend is coming soon!
+
+;; 	;; codeium-completion-at-point is autoloaded, but you can
+;; 	;; optionally set a timer, which might speed up things as the
+;; 	;; codeium local language server takes ~0.2s to start up
+;; 	(add-hook 'emacs-startup-hook
+;; 						(lambda () (run-with-timer 0.1 nil #'codeium-init)))
+
+;; 	;; :defer t ;; lazy loading, if you want
+;; 	:config
+;; 	(setq use-dialog-box nil) ;; do not use popup boxes
+
+;; 	;; if you don't want to use customize to save the api-key
+;; 	;; (setq codeium/metadata/api_key "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+;; 	;; get codeium status in the modeline
+;; 	(setq codeium-mode-line-enable
+;; 				(lambda (api) (not (memq api '(CancelRequest AcceptCompletion)))))
+;; 	;;(add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
+;; 	;; alternatively for a more extensive mode-line
+;; 	(add-to-list 'mode-line-format '(-50 "" codeium-mode-line) t)
+
+;; 	;; use M-x codeium-diagnose to see apis/fields that would be sent to the local language server
+;; 	(setq codeium-api-enabled
+;; 				(lambda (api)
+;; 					(memq api '(GetCompletions CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
+;; 	;; you can also set a config for a single buffer like this:
+;; 	;; (add-hook 'python-mode-hook
+;; 	;;     (lambda ()
+;; 	;;         (setq-local codeium/editor_options/tab_size 4)))
+
+;; 	;; You can overwrite all the codeium configs!
+;; 	;; for example, we recommend limiting the string sent to codeium for better performance
+;; 	(defun my-codeium/document/text ()
+;; 		(buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
+;; 	;; if you change the text, you should also change the cursor_offset
+;; 	;; warning: this is measured by UTF-8 encoded bytes
+;; 	(defun my-codeium/document/cursor_offset ()
+;; 		(codeium-utf8-byte-length
+;; 		 (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
+;; 	(setq codeium/document/text 'my-codeium/document/text)
+;; 	(setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
 
 (setq cape-dabbrev-min-length 1)
 (add-hook 'text-mode-hook (lambda () (setq-local completion-at-point-functions (list (cape-super-capf #'cape-dabbrev #'cape-file #'cape-history #'cape-dict)))))
@@ -1088,6 +1241,13 @@
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 
 (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+
+(use-package dumb-jump
+	:straight t
+	:ensure t)
+
+(add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+(setq xref-show-definitions-function #'xref-show-definitions-completing-read)
 
 (use-package eldoc-box
 	:straight t
@@ -1112,23 +1272,18 @@
 	(setq web-mode-enable-current-column-highlight nil)
 	)
 
-;; (use-package sublimity
-;; 	:straight t
-;; 	:ensure t
-;; 	:init
-;; 	(sublimity-mode))
+(use-package good-scroll
+	:straight t
+	:ensure t
+	:init
+	(good-scroll-mode))
 
-;; (require 'sublimity-scroll)
-
-;; (setq sublimity-scroll-weight 1
-;; 			sublimity-scroll-drift-length 1)
-
-;; (use-package fast-scroll
-;; 	:straight t
-;; 	:ensure t
-;; 	:init
-;; 	(fast-scroll-config)
-;; 	(fast-scroll-mode))
+(use-package fast-scroll
+	:straight t
+	:ensure t
+	:init
+	(fast-scroll-config)
+	(fast-scroll-mode))
 
 ;; Store automatic customisation options elsewhere
 (setq custom-file (locate-user-emacs-file "custom.el"))
@@ -1138,36 +1293,19 @@
 (setq use-short-answers t)
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
-(setq truncate-lines t)
+;; (setq truncate-lines t)
 (save-place-mode t)
 (recentf-mode t)
 
 (defun my-configure-font (frame)
-	(set-face-attribute 'default nil :font "Iosevka Nerd Font Propo-14")
+	(set-face-attribute 'default nil :font "Monoid Nerd Font Retina-11")
 	(set-face-attribute 'mode-line nil :font "DroidSansM Nerd Font Propo-12")
 	(set-face-attribute 'variable-pitch nil :font "DroidSansM Nerd Font-12")
 	(set-face-attribute 'fixed-pitch nil :font "Iosevka Nerd Font Propo-14")
-	(run-with-timer 0.1 nil #'theme-magic-from-emacs)
-	(theme-magic-export-theme-mode t)
 	(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 	;;(remove-hook 'after-make-frame-functions #'my-configure-font)
 	)
 
-(add-hook 'server-after-make-frame-hook 'awesome-tab-mode)
-(add-hook 'server-after-make-frame-hook 'treemacs--init)
-(add-hook 'after-make-frame-functions #'my-configure-font)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-	 '("1cd4df5762b3041a09609b5fb85933bb3ae71f298c37ba9e14804737e867faf3" default)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(put 'scroll-left 'disabled nil)
+;; (add-hook 'server-after-make-frame-hook 'awesome-tab-mode)
+;; (add-hook 'server-after-make-frame-hook 'treemacs)
+;; (add-hook 'after-make-frame-functions #'my-configure-font)
